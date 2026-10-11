@@ -7,7 +7,7 @@
   <title>Günlük Program</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="apple-touch-icon" href="favicon.svg">
-  <link rel="stylesheet" href="styles.css?v=11">
+  <link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
   <div class="app-shell">
@@ -96,10 +96,14 @@
           <form id="add-task-form" class="add-task-form"><input id="new-task-name" type="text" maxlength="100" placeholder="Yeni görev adı" required><input id="new-task-duration" type="text" maxlength="30" placeholder="Süre (örn. 20 dk)" required><button class="primary-button" type="submit">＋ Görev ekle</button></form>
           <p class="settings-hint">Yeni tarihler görev ekleyene kadar boş kalır. Şablonu düzenlemek günlük kayıtları değiştirmez.</p>
         </section>
+        <section class="table-panel backup-panel"><div class="panel-heading"><div><h2>Verilerini yedekle</h2><span class="muted">Görev şablonu, günlük kayıtlar, notlar, değerlendirmeler ve tema ayarı</span></div></div>
+          <div class="backup-actions"><button class="secondary-button" id="export-data" type="button">↓ Yedeği dışa aktar</button><button class="secondary-button" id="choose-import" type="button">↑ Yedekten içe aktar</button><input id="import-data-file" type="file" accept=".json,application/json" hidden></div>
+          <p class="settings-hint">Yedek dosyan yalnızca bu cihazda oluşturulur. İçe aktarma mevcut site verilerinin yerine geçer.</p>
+        </section>
       </section>
       <div class="toast" id="toast" role="status" aria-live="polite"></div>
     </main>
   </div>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

@@ -98,6 +98,45 @@
   }
   function navigateDate(key){ currentDate=key; currentRecord=ensureRecord(key); renderDaily(); }
   function showToast(message){ const toast=$('#toast');toast.textContent=message;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2200); }
+  function exportData(){
+    const data={};
+    Object.keys(localStorage).filter(key=>key.startsWith('gunluk-program:')).sort().forEach(key=>{data[key]=localStorage.getItem(key);});
+    const backup={app:'gunluk-program',formatVersion:1,exportedAt:new Date().toISOString(),data};
+    const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=url;link.download=`gunluk-program-yedek-${todayKey()}.json`;document.body.append(link);link.click();link.remove();window.setTimeout(()=>URL.revokeObjectURL(url),1000);
+    showToast('Yedek dosyası indirildi.');
+  }
+  function validateBackup(backup){
+    if(!backup||backup.app!=='gunluk-program'||backup.formatVersion!==1||!backup.data||typeof backup.data!=='object'||Array.isArray(backup.data))throw new Error('Bu dosya geçerli bir Günlük Program yedeği değil.');
+    const data=backup.data;
+    if(!Array.isArray(safeParse(data[KEYS.tasks],null)))throw new Error('Yedekte görev şablonu bulunamadı.');
+    const tasks=safeParse(data[KEYS.tasks],null);
+    if(!tasks.every(task=>task&&typeof task.name==='string'&&typeof task.duration==='string'))throw new Error('Yedekteki görev şablonu okunamadı.');
+    const records=safeParse(data[KEYS.records],null);
+    if(!records||typeof records!=='object'||Array.isArray(records))throw new Error('Yedekte günlük kayıtlar bulunamadı.');
+    for(const [date,record] of Object.entries(records)){
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!record||!Array.isArray(record.tasks)||typeof (record.note??'')!=='string'||!(record.rating==null||(Number.isInteger(record.rating)&&record.rating>=1&&record.rating<=10)))throw new Error('Yedekte bozuk veya okunamayan bir günlük kayıt var.');
+      if(!record.tasks.every(task=>task&&typeof task.name==='string'&&typeof task.duration==='string'))throw new Error('Yedekteki görev kayıtlarından biri okunamadı.');
+    }
+    if(Object.entries(data).some(([key,value])=>!key.startsWith('gunluk-program:')||typeof value!=='string'))throw new Error('Yedek dosyasındaki uygulama verileri geçerli değil.');
+    return data;
+  }
+  async function importData(file){
+    try{
+      const backup=JSON.parse(await file.text()),data=validateBackup(backup);
+      if(!window.confirm('İçe aktarma bu cihazdaki mevcut Günlük Program verilerinin tamamının yerine geçecek. Devam edilsin mi?'))return;
+      const before={};Object.keys(localStorage).filter(key=>key.startsWith('gunluk-program:')).forEach(key=>{before[key]=localStorage.getItem(key);});
+      try{
+        Object.keys(before).forEach(key=>localStorage.removeItem(key));
+        Object.entries(data).forEach(([key,value])=>localStorage.setItem(key,value));
+      }catch(error){
+        Object.keys(localStorage).filter(key=>key.startsWith('gunluk-program:')).forEach(key=>localStorage.removeItem(key));
+        Object.entries(before).forEach(([key,value])=>localStorage.setItem(key,value));
+        throw error;
+      }
+      window.location.reload();
+    }catch(error){showToast(error.name==='QuotaExceededError'?'Cihazda yedek veriyi yüklemek için yeterli alan yok.':error.message||'Yedek dosyası içe aktarılamadı.');}
+  }
   function applyTheme(theme){const dark=theme==='dark',toggle=$('#theme-toggle');document.documentElement.dataset.theme=dark?'dark':'light';$('#theme-toggle-label').textContent=dark?'Beyaz mod':'Karanlık mod';$('#theme-toggle-icon').textContent=dark?'☀':'☾';toggle.setAttribute('aria-pressed',String(dark));toggle.setAttribute('aria-label',dark?'Beyaz moda geç':'Karanlık moda geç');$('#mobile-theme-toggle').textContent=dark?'☀':'☾';$('#mobile-theme-toggle').setAttribute('aria-label',dark?'Beyaz moda geç':'Karanlık moda geç');localStorage.setItem('gunluk-program:theme:v1',dark?'dark':'light');}
   function switchView(name){
     $$('.view').forEach(view=>view.classList.toggle('active',view.id===`view-${name}`));
@@ -185,6 +224,9 @@
     $('#daily-note').addEventListener('input',event=>{currentRecord.note=event.target.value;$('#note-save-state').textContent='Kaydediliyor…';clearTimeout(noteTimer);noteTimer=setTimeout(()=>{persist();$('#note-save-state').textContent='Kaydedildi';},250);});
     $('#rating-scale').addEventListener('click',event=>{const button=event.target.closest('[data-rating]');if(!button)return;const value=Number(button.dataset.rating);currentRecord.rating=currentRecord.rating===value?null:value;persist();renderRating();});
     $('#add-task-form').addEventListener('submit',event=>{event.preventDefault();const name=$('#new-task-name').value.trim(),duration=$('#new-task-duration').value.trim();if(!name||!duration)return;defaults.push({id:uid(),name,duration});storage.setTasks(defaults);event.target.reset();renderSettings();showToast('Yeni görev eklendi.');});
+    $('#export-data').addEventListener('click',exportData);
+    $('#choose-import').addEventListener('click',()=>$('#import-data-file').click());
+    $('#import-data-file').addEventListener('change',event=>{const file=event.target.files?.[0];if(file)importData(file);event.target.value='';});
   }
   init();
 })();
