@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6f2">
+  <title>Günlük Program</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css?v=11">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#gunluk" aria-label="Günlük Program ana sayfa">
+        <img class="brand-mark" src="favicon.svg" alt=""><span>günlük<span class="brand-light"> program</span></span>
+      </a>
+      <p class="nav-label">ÇALIŞMA ALANI</p>
+      <nav class="main-nav" aria-label="Ana menü">
+        <button class="nav-item active" data-view="daily"><span class="nav-icon">▦</span> Günlük Program</button>
+        <button class="nav-item" data-view="analysis"><span class="nav-icon">◷</span> Analiz</button>
+        <button class="nav-item" data-view="settings"><span class="nav-icon">⚙</span> Ayarlar</button>
+      </nav>
+      <div class="sidebar-bottom"><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Karanlık moda geç"><span class="theme-toggle-icon" id="theme-toggle-icon">☾</span><span id="theme-toggle-label">Karanlık mod</span><span class="toggle-track"><span></span></span></button><div class="storage-note">Verilerin bu cihazda saklanır</div></div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="mobile-brand"><img class="brand-mark" src="favicon.svg" alt=""> günlük program</div>
+        <div class="topbar-date" id="topbar-date"></div>
+        <div class="mobile-actions"><button class="mobile-theme" id="mobile-theme-toggle" type="button" aria-label="Karanlık moda geç">☾</button><button class="mobile-settings" data-go="settings" aria-label="Ayarlar">⚙</button></div>
+      </header>
+
+      <section class="view active" id="view-daily">
+        <div class="page-heading">
+          <div><p class="eyebrow">KİŞİSEL TAKİP</p><h1>Günlük Program</h1><p class="subheading">Bugün için planına göz at ve ilerlemeni kaydet.</p></div>
+          <div class="date-controls">
+            <button class="icon-button" id="prev-day" aria-label="Önceki gün">‹</button>
+            <div class="date-picker-anchor"><button class="date-display" id="date-display" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="calendar-icon">▦</span><span id="selected-date"></span><span class="date-caret">⌄</span></button>
+              <div class="calendar-popover" id="calendar-popover" role="dialog" aria-label="Tarih seç" aria-modal="false" hidden>
+                <div class="calendar-header"><button type="button" class="calendar-nav" id="calendar-prev" aria-label="Önceki ay">‹</button><button type="button" class="calendar-month" id="calendar-month" aria-label="Ay ve yıl seç"></button><button type="button" class="calendar-nav" id="calendar-next" aria-label="Sonraki ay">›</button></div>
+                <div class="calendar-grid" id="calendar-grid" role="grid"></div>
+                <div class="calendar-footer"><button type="button" id="calendar-today">Bugün</button><button type="button" id="calendar-close">Kapat</button></div>
+              </div>
+            </div>
+            <button class="icon-button" id="next-day" aria-label="Sonraki gün">›</button>
+          </div>
+        </div>
+
+        <div class="daily-workspace">
+          <div class="daily-main-column">
+            <section class="table-panel" aria-label="Günlük görev listesi">
+              <div class="panel-heading"><div><h2>Görev listesi</h2><span class="muted" id="task-count">0 görev</span></div><button class="quick-add-button" data-focus-add-task type="button" aria-label="Bu güne görev ekle" title="Görev ekle">＋</button></div>
+              <div class="table-wrap"><table><thead><tr><th class="task-col">GÖREV</th><th class="duration-col">SÜRE</th><th class="complete-col">TAMAMLANDI</th></tr></thead><tbody id="task-rows"></tbody></table></div>
+              <div class="table-footer"><span id="completion-summary">Henüz görev yok</span><div class="progress-track"><div id="progress-bar"></div></div><span id="completion-pct">%0</span></div>
+              <form id="daily-add-task-form" class="daily-add-task-form"><input id="daily-task-name" type="text" maxlength="100" placeholder="Görev adı" required><input id="daily-task-duration" type="text" maxlength="30" placeholder="Süre (örn. 20 dk)" required><button class="primary-button" type="submit">＋ Görev ekle</button></form>
+            </section>
+            <section class="note-panel">
+            <div class="section-title"><span class="title-icon note-icon">✎</span><div><h2>Günün notu</h2><p>Günün nasıl geçti? Kısaca not al.</p></div><span class="save-state" id="note-save-state">Otomatik kaydedilir</span></div>
+            <textarea id="daily-note" rows="4" placeholder="Bugün neler oldu? Programını etkileyen bir şey var mı?"></textarea>
+          </section>
+          </div>
+          <section class="rating-panel">
+            <div class="section-title"><span class="title-icon rating-icon">★</span><div><h2>Günlük değerlendirme</h2><p>Bugününü 1–10 arasında değerlendir.</p></div></div>
+            <div class="rating-scale" id="rating-scale" role="radiogroup" aria-label="Günlük değerlendirme"></div>
+            <div class="rating-caption"><span>Çok kötü</span><span>Mükemmel</span></div>
+            <div class="rating-result" id="rating-result">Henüz değerlendirme yapılmadı</div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="view-analysis">
+        <div class="page-heading"><div><p class="eyebrow">KAYITLARINA GÖRE</p><h1>Analiz</h1><p class="subheading">Günlük ilerlemenin kısa bir özeti.</p></div></div>
+        <div class="analysis-grid">
+          <article class="stat-card positive-stat"><div class="stat-card-head"><span>Son 7 gün</span><span class="stat-icon lavender">◷</span></div><div class="stat-value" id="avg-7">—</div><div class="stat-foot" id="count-7">Değerlendirme bekleniyor</div></article>
+          <article class="stat-card positive-stat"><div class="stat-card-head"><span>Son 30 gün</span><span class="stat-icon blue">◷</span></div><div class="stat-value" id="avg-30">—</div><div class="stat-foot" id="count-30">Değerlendirme bekleniyor</div></article>
+          <article class="stat-card best-worst positive-stat"><div class="stat-card-head"><span>En iyi gün</span><span class="stat-icon green">↗</span></div><div class="best-line" id="best-day">Henüz veri yok</div></article>
+          <article class="stat-card best-worst negative-stat"><div class="stat-card-head"><span>En düşük gün</span><span class="stat-icon peach">↘</span></div><div class="best-line" id="worst-day">Henüz veri yok</div></article>
+        </div>
+        <div class="analysis-visuals">
+          <section class="table-panel visual-panel"><div class="panel-heading"><div><h2>Değerlendirme seyri</h2><span class="muted">Son 14 gün · değerlendirme yapılmayan günler boş kalır</span></div></div><div class="rating-chart-wrap"><div class="rating-chart-y"><span>10</span><span>5</span><span>1</span></div><div class="rating-chart" id="rating-chart" role="img" aria-label="Son 14 günün günlük değerlendirme grafiği"></div></div><div class="chart-legend"><span><i class="legend-dot"></i> Günlük puan</span><span>Ölçek: 1–10</span></div></section>
+          <section class="table-panel visual-panel"><div class="panel-heading"><div><h2>Ortalama karşılaştırması</h2><span class="muted">Son 7 ve 30 gün</span></div></div><div class="average-chart" id="average-chart"></div></section>
+        </div>
+        <div class="task-analysis-grid">
+          <section class="table-panel visual-panel task-insight-panel"><div class="panel-heading"><div><h2>En çok tamamlanan görevler</h2><span class="muted">Tamamlanma sayısına göre</span></div></div><div id="most-completed-tasks" class="task-insight-list"></div></section>
+          <section class="table-panel visual-panel task-insight-panel"><div class="panel-heading"><div><h2>En çok yarım kalan görevler</h2><span class="muted">Tamamlanmadan kalanlara göre</span></div></div><div id="least-completed-tasks" class="task-insight-list"></div></section>
+        </div>
+        <section class="table-panel visual-panel task-trend-panel"><div class="panel-heading"><div><h2>Görev tamamlama eğilimi</h2><span class="muted">Son 14 gün · o günkü görev listesinin tamamlanan yüzdesi</span></div></div><div id="task-trend-chart" class="task-trend-chart" role="img" aria-label="Son 14 günün görev tamamlama oranı grafiği"></div></section>
+        <section class="table-panel analysis-tasks"><div class="panel-heading"><div><h2>Görev tamamlama oranı</h2><span class="muted">Kayıtlı günlerin özeti</span></div></div><div id="completion-history" class="history-list"></div></section>
+      </section>
+
+      <section class="view" id="view-settings">
+        <div class="page-heading"><div><p class="eyebrow">GÜNLÜK ŞABLONUN</p><h1>Ayarlar</h1><p class="subheading">Yeni günlerde kullanılacak görevleri düzenle.</p></div></div>
+        <section class="table-panel settings-panel"><div class="panel-heading"><div><h2>Görev şablonu</h2><span class="muted">Bu liste yalnızca buradan eklediğin gün görevleri için öneri sağlar.</span></div></div>
+          <div class="table-wrap"><table><thead><tr><th class="task-col">GÖREV</th><th class="duration-col">SÜRE</th><th class="settings-actions">İŞLEM</th></tr></thead><tbody id="settings-rows"></tbody></table></div>
+          <form id="add-task-form" class="add-task-form"><input id="new-task-name" type="text" maxlength="100" placeholder="Yeni görev adı" required><input id="new-task-duration" type="text" maxlength="30" placeholder="Süre (örn. 20 dk)" required><button class="primary-button" type="submit">＋ Görev ekle</button></form>
+          <p class="settings-hint">Yeni tarihler görev ekleyene kadar boş kalır. Şablonu düzenlemek günlük kayıtları değiştirmez.</p>
+        </section>
+      </section>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+  </div>
+  <script src="app.js?v=4"></script>
+</body>
+</html>
